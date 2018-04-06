@@ -1,1 +1,1 @@
-# liri-node
+# LIRI-node-API
