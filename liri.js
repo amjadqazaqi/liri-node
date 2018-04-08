@@ -1,42 +1,26 @@
+
+
+
 require('dotenv').config();
-let fs = require("fs");
-let keys = require('./keys.js');
+//let fs = require("fs");
+let mykey = require('./keys.js');
 var Twitter = require('twitter');
-var client = new Twitter(keys.twitter);
+var theclient = new Twitter(mykey.twitter);
 var Spotify = require('node-spotify-api');
-var spotify = new Spotify(keys.spotify);
+var spotify = new Spotify(mykey.spotify);
 let request = require('request');
 
 let [node, path, command, ...value] = process.argv;
 
 
-let mytweet = function () {
-    logSearch();
-    var params = { screen_name: 'a_alqazqi' };
-    client.get('statuses/user_timeline', params, function (error, tweets, response) {
-        if (!error) {
-            // console.log(tweets[1])
-            for (let i = 0; i < 20; i++) {
-                let listing = i + 1
-                let t = tweets[i]
-                let twit = {
-                    number: listing,
-                    text: t.text,
-                    created: t.created_at,
-                }
-                console.log(twit);
-                logTwit(twit);
-            }
-        }
-    })
-}
+
 
 let getSongInfo = function (song_name) {
-    logSearch();
+
     let query = song_name;
     spotify.search({ type: 'track', query: query }, function (error, data) {
         if (error) {
-            // console.log('pasta');
+
             return console.log('Error occurred: ' + error);
         } else if (query === 'The Sign') {
             let objects = data.tracks.items;
@@ -68,8 +52,31 @@ let getSongInfo = function (song_name) {
     })
 }
 
+let mytweet = function () {
+
+    var params = { screen_name: 'a_alqazqi' };
+    theclient.get('statuses/user_timeline', params, function (error, tweets, response) {
+        if (!error) {
+
+            var i = 0;
+            while (i < 20) {
+                let listing = i + 1
+                let t = tweets[i]
+                let twitterresults = {
+
+                    text: t.text,
+                    created: t.created_at,
+
+                }
+                console.log(twitterresults);
+                i++;
+            }
+        }
+    })
+}
+
 let getMovieInfo = function (movie_name) {
-    logSearch();
+    //   logSearch();
     request('http://www.omdbapi.com/?t=' + movie_name + '&apikey=trilogy&r=json', 'utf8', function (error, response, body) {
         if (error) {
             console.log(error);
@@ -93,17 +100,6 @@ let getMovieInfo = function (movie_name) {
     });
 };
 
-let doIt = function () {
-    fs.readFile('./random.txt', 'utf8', function (error, data) {
-        if (error) {
-            console.log(error);
-        } else {
-            let dataArray = data.split(",")
-            let value = dataArray[1];
-            getSongInfo(value);
-        }
-    })
-}
 
 let logSearch = function () {
     let c = process.argv[2]
@@ -126,15 +122,9 @@ let logSearch = function () {
 }
 
 let logTwit = function (output) {
-    let result = `Result: ${output.number}, ${output.text}, ${output.created}, `;
-    fs.appendFile('./log.txt', result, 'utf8', function (error) {
-        if (error) {
-            console.log(error)
-            throw error;
-        } else {
-            console.log(`saved result to log`);
-        }
-    })
+
+    let result = " Result: " + "output.number" + "output.text" + "output.created, ";
+
 }
 
 let logSongResults = function (output) {
@@ -161,18 +151,25 @@ let logMovieResults = function (output) {
     });
 }
 
-if (command === 'tweets') {
-    mytweet();
-} else if (command === 'spotify-this-song') {
-    if (process.argv.length === 3) {
-        value = 'The Sign';
-    }
-    getSongInfo(value);
-} else if (command === 'movie-this') {
-    if (process.argv.length === 3) {
-        value = "Mr. Nobody";
-    }
-    getMovieInfo(value);
-} else if (command === 'do-what-it-says') {
-    doIt();
+switch (command) {
+    case "tweets":
+        mytweet();
+        break;
+    case 'spotify-this-song':
+        if (process.argv.length === 3) {
+            value = 'The Sign';
+        }
+        getSongInfo(value);
+        break;
+    case 'movie-this':
+        if (process.argv.length === 3) {
+            value = "Mr. Nobody";
+        }
+        getMovieInfo(value);
+
+        break;
+    case 'do-what-it-says':
+        doIt();
+        break;
+
 }
